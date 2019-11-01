@@ -1,0 +1,27 @@
+{
+  "name": "stock_sentiment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjkauss2/stock_sentiment.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cjkauss2/stock_sentiment/issues"
+  },
+  "homepage": "https://github.com/cjkauss2/stock_sentiment#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mysql": "^2.17.1",
+    "node-cron": "^2.0.3",
+    "nodemon": "^1.19.4",
+    "request": "^2.88.0"
+  }
+}
