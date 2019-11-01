@@ -1,0 +1,42 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+  <link rel="stylesheet" href="styles.css?v=1.0">
+</head>
+
+<script>
+function query() {
+  request(baseurl + '/daily?symbol=AAPL&interval=1d', { json: true }, (err, res, body) => {
+    if (err) { return console.log(err); }
+    console.log(body.url);
+    console.log(body.explanation);
+    console.log(res);
+  });
+}
+</script>
+
+<body>
+  <div class="mb4 horizontal-middle">
+    Database Demostration:
+  </div>
+  <div class="mb4 horizontal-middle">
+    <button onclick="insert()">insert</button>
+  </div>
+  <div class="mb4 horizontal-middle">
+    <button onclick="query()">query</button>
+  </div>
+  <div class="mb4 horizontal-middle">
+    <button onclick="update()">update</button>
+  </div>
+  <div class="mb4 horizontal-middle">
+    <button onclick="delete()">delete</button>
+  </div>
+</body>
+
+</html>

@@ -184,7 +184,7 @@ app.get('/trending', function (req, res) {
 
   console.log(yesterday);
 
-  var sql = '(SELECT * FROM (DailyPrice d1 WHERE d1.Date = ?)';
+  var sql = '(SELECT * FROM DailyPrice d1 WHERE d1.Date = ?';
   con.query(sql, [today], function (error, results, fields) {
     if (error) throw error;
       return res.send(results );
