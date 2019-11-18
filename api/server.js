@@ -84,6 +84,17 @@ cron.schedule("*/15 0-10 16 * * *", function() {
 });
 
 
+// Schedule delete hourly price task to be run on the server
+// Delete old hourly prices everyday at 18:00 US/Eastern
+cron.schedule("* 17 * * *", function() {
+  request({
+    url: 'http://localhost:3000/deletehourly',
+    method: "DELETE",
+    json: true,
+  });
+});
+
+
 
 // Retrieve all stocks
 app.get('/stocks', function (req, res) {
@@ -223,7 +234,8 @@ app.delete('/deletehourly', function (req, res) {
 
   con.query('DELETE FROM HourlyPrice WHERE DateTime < ?', [d], function (error, results, fields) {
     if (error) throw error;
-    return res.send('Number of records deleted: ' + results.affectedRows);
+    console.log('Deleted old hourly prices. Number of records deleted: ' + results.affectedRows);
+    return res.send('Deleted old hourly prices. Number of records deleted: ' + results.affectedRows);
   });
 });
 
