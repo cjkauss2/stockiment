@@ -87,4 +87,4 @@ def delete_stock(ticker, date):
 
 
 if __name__ == '__main__':
-    insert_stock('AAPL', '2019-10-31', 0.1)
+    insert_stock(ticker, date, sentiment)
