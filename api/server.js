@@ -86,7 +86,7 @@ cron.schedule("*/15 0-10 16 * * *", function() {
 
 // Schedule delete hourly price task to be run on the server
 // Delete old hourly prices everyday at 18:00 US/Eastern
-cron.schedule("* 17 * * *", function() {
+cron.schedule("0 17 * * *", function() {
   request({
     url: 'http://localhost:3000/deletehourly',
     method: "DELETE",
@@ -109,6 +109,8 @@ app.get('/stocks', function (req, res) {
 app.get('/daily', function (req, res) {
   var symbol = req.query.symbol;
   var interval = req.query.interval;
+  console.log(symbol);
+  console.log(interval);
   if (!symbol || !interval) {
       return res.status(400).send('Please provide stock symbol and interval (6mo or 1mo)');
   }
@@ -227,10 +229,10 @@ app.post('/updatesentiment', function(req, res){
 });
 
 
-//  Delete old hourly prices (older than 7 days ago)
+//  Delete old hourly prices (older than 10 days ago)
 app.delete('/deletehourly', function (req, res) {
   var d = new Date();
-  d.setDate(d.getDate() - 1);
+  d.setDate(d.getDate() - 10);
 
   con.query('DELETE FROM HourlyPrice WHERE DateTime < ?', [d], function (error, results, fields) {
     if (error) throw error;
