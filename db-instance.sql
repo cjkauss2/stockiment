@@ -32,7 +32,7 @@ CREATE TABLE `DailyPrice` (
   `Volume` int(11) DEFAULT NULL,
   `Sentiment` float DEFAULT NULL,
   PRIMARY KEY (`Symbol`,`Date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `HourlyPrice` (
   `Volume` int(11) DEFAULT NULL,
   `Sentiment` float DEFAULT NULL,
   PRIMARY KEY (`Symbol`,`DateTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,7 +86,7 @@ CREATE TABLE `Stock` (
   `Symbol` varchar(10) NOT NULL,
   `StockName` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`Symbol`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
