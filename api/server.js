@@ -109,8 +109,7 @@ app.get('/stocks', function (req, res) {
 app.get('/daily', function (req, res) {
   var symbol = req.query.symbol;
   var interval = req.query.interval;
-  console.log(symbol);
-  console.log(interval);
+
   if (!symbol || !interval) {
       return res.status(400).send('Please provide stock symbol and interval (6mo or 1mo)');
   }
@@ -162,9 +161,12 @@ app.post('/insertdaily', function(req, res){
   request(url, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var obj = JSON.parse(body)
-      var sql = 'INSERT IGNORE INTO DailyPrice (Symbol, Date, Open, High, Low, Close, Volume) Values ?';
 
-      console.log(symbol + ' daily update');
+      var sql =
+      'INSERT INTO DailyPrice (Symbol, Date, Open, High, Low, Close, Volume)\
+       VALUES ? \
+       ON DUPLICATE KEY UPDATE Open = VALUES(Open), High = VALUES(High), Low = VALUES(Low), Close = VALUES(Close), Volume = VALUES(Volume)';
+
       var rows = [];
 
       for (var date in obj['Time Series (Daily)']) {
@@ -194,7 +196,10 @@ app.post('/inserthourly', function(req, res){
   request(url, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var obj = JSON.parse(body)
-      var sql = 'INSERT IGNORE INTO HourlyPrice (Symbol, DateTime, Open, High, Low, Close, Volume) Values ?';
+      var sql =
+      'INSERT INTO HourlyPrice (Symbol, DateTime, Open, High, Low, Close, Volume)\
+       VALUES ?\
+       ON DUPLICATE KEY UPDATE Open = VALUES(Open), High = VALUES(High), Low = VALUES(Low), Close = VALUES(Close), Volume = VALUES(Volume)';
 
       var rows = [];
 
