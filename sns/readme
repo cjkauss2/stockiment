@@ -1,5 +1,11 @@
+// set up:
+npm install aws-sdk
+npm install uuid /* probably do not need this, but just in case command fails */
+
+// run:
+node sns_topic.js /* uncomment the rest to test each function individually */
+
 /* No need to do this, SNS credentials are specified at the top of sns_createtopic.js
-in case credentials fail, run this in terminal to obtain SNS credentials:
 $ export AWS_ACCESS_KEY_ID=AKIA3EZLVHR7ZZFIPU6Q
 $ export AWS_SECRET_ACCESS_KEY=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
 */
