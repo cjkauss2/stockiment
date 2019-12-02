@@ -4,9 +4,9 @@ var AWS = require('aws-sdk');
 
 // Set credentials (only need to do it once)
 AWS.config.update({
-  accessKeyId: 'AKIA3EZLVHR7ZZFIPU6Q',
-  secretAccessKey: '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',
-  region: 'us-west-2'
+    accessKeyId: 'keyid',
+    secretAccessKey: 'accesskey',
+    region: 'us-west-2'
 });
 
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});
