@@ -124,12 +124,14 @@ app.get('/daily', function (req, res) {
 
   var d = new Date();
   if (interval == '6mo') {
-    d.setDate(d.getDate() - 168);
+    d.setMonth(d.getMonth() - 6);
   } else {
-    d.setDate(d.getDate() - 28);
+    d.setMonth(d.getMonth() - 1);
   }
 
-  var sql = 'SELECT * FROM DailyPrice WHERE Symbol = ? AND Date > ?';
+  console.log(d);
+
+  var sql = 'SELECT * FROM DailyPrice WHERE Symbol = ? AND Date >= ?';
   con.query(sql, [symbol, d], function (error, results, fields) {
     if (error) throw error;
       return res.send(results);
@@ -151,7 +153,7 @@ app.get('/hourly', function (req, res) {
     d.setDate(d.getDate() - 1);
   }
 
-  var sql = 'SELECT * FROM HourlyPrice WHERE Symbol = ? AND DateTime > ?';
+  var sql = 'SELECT * FROM HourlyPrice WHERE Symbol = ? AND DateTime >= ?';
   con.query(sql, [symbol, d], function (error, results, fields) {
     if (error) throw error;
       return res.send(results);
@@ -199,8 +201,7 @@ app.post('/inserthourly', function(req, res){
       return res.status(400).send('Please provide stock symbol');
   }
 
-  var interval = '5min';
-  var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + symbol + '&interval=' + interval + '&outputsize=full&apikey=X5C49C68WA63PPB1';
+  var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + symbol + '&interval=15min&outputsize=full&apikey=X5C49C68WA63PPB1';
   request(url, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var obj = JSON.parse(body)
@@ -211,8 +212,8 @@ app.post('/inserthourly', function(req, res){
 
       var rows = [];
 
-      for (var datetime in obj['Time Series (' + interval + ')']) {
-        var prices = obj['Time Series (' + interval + ')'][datetime];
+      for (var datetime in obj['Time Series (15min)']) {
+        var prices = obj['Time Series (15min)'][datetime];
 
         rows.push([symbol, datetime, prices['1. open'], prices['2. high'], prices['3. low'], prices['4. close'], prices['5. volume']]);
       }
@@ -221,6 +222,21 @@ app.post('/inserthourly', function(req, res){
         if (error) throw error;
         console.log(symbol + ' hourly update. Number of records inserted: ' + results.affectedRows)
         return res.send(symbol + ' hourly update. Number of records inserted: ' + results.affectedRows);
+      });
+
+      // Now update daily table with most recent hourly price
+      // This will simplify some calculations we do to find price differences in the middle of a day.
+      var keys = Object.keys(obj['Time Series (15min)']);
+      var dateString = keys[0].split(' ')[0];
+      var currentPrice = obj['Time Series (15min)'][keys[0]]['4. close'];
+
+      sql =
+      'INSERT INTO DailyPrice (Symbol, Date, Close)\
+       VALUES (?, ?, ?)\
+       ON DUPLICATE KEY UPDATE Close = VALUES(Close)';
+
+      con.query(sql, [symbol, dateString, currentPrice], function (error, results, fields) {
+        if (error) throw error;
       });
     }
   })
