@@ -84,6 +84,14 @@ cron.schedule("*/15 0-10 16 * * *", function() {
 });
 
 
+// Schedule text messages to be sent out daily at 11:00 US/Eastern
+// 0 10 * * *
+cron.schedule("0 10 * * *", function() {
+  console.log('Sending texts');
+
+});
+
+
 // Schedule delete hourly price task to be run on the server
 // Delete old hourly prices everyday at 18:00 US/Eastern
 cron.schedule("0 17 * * *", function() {
@@ -218,21 +226,6 @@ app.post('/inserthourly', function(req, res){
   })
 });
 
-app.post('/updatesentiment', function(req, res){
-
-  var sql = 'INSERT INTO HourlyPrice\
-              (Symbol, DateTime, Sentiment)\
-          VALUES\
-              (?, ?, ?)\
-          ON DUPLICATE KEY UPDATE\
-              Sentiment = ?'
-
-  con.query(sql, ['AAPL', '2019-11-01 14:00:00', 0.9, 0.9], function (error, results, fields) {
-    if (error) throw error;
-      return res.send(results );
-  });
-});
-
 
 //  Delete old hourly prices (older than 10 days ago)
 app.delete('/deletehourly', function (req, res) {
@@ -248,17 +241,70 @@ app.delete('/deletehourly', function (req, res) {
 
 
 
-// Retrieve stocks with increasing price and sentiment
-// app.get('/trending', function (req, res) {
-//   var sql = 'SELECT s1.StockName, d1.Symbol, d1.Close - d2.Close as PriceChange, d1.Sentiment - d2.Sentiment as SentimentChange\
-//             FROM Stock s1 INNER JOIN
-// (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Date = DATE_ADD(d2.Date, INTERVAL 1 DAY) AND d1.Symbol = d2.Symbol) ON d1.Symbol = s1.Symbol\
-//             WHERE d1.date = curdate() AND d1.Close > d2.Close AND d1.Sentiment > d2.Sentiment'
-//   con.query(sql, function (error, results, fields) {
-//     if (error) throw error;
-//       return res.send(results );
-//   });
-// });
+// Retrieve stocks with increasing price and sentiment in the past business day
+app.get('/bullish', function (req, res) {
+  var sql =
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+   FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
+     AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
+     AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
+   ON d1.Symbol = s1.Symbol \
+   WHERE d1.Close > d2.Close AND d1.Sentiment > d2.Sentiment'
+
+  con.query(sql, function (error, results, fields) {
+    if (error) throw error;
+      return res.send(results );
+  });
+});
+
+// Retrieve stocks with decreasing price and sentiment in the past business day
+app.get('/bearish', function (req, res) {
+  var sql =
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+   FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
+     AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
+     AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
+   ON d1.Symbol = s1.Symbol \
+   WHERE d1.Close < d2.Close AND d1.Sentiment < d2.Sentiment'
+
+  con.query(sql, function (error, results, fields) {
+    if (error) throw error;
+      return res.send(results );
+  });
+});
+
+// Retrieve stocks with increasing price and decreasing sentiment in the past business day
+app.get('/priceUpSentimentDown', function (req, res) {
+  var sql =
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+   FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
+     AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
+     AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
+   ON d1.Symbol = s1.Symbol \
+   WHERE d1.Close > d2.Close AND d1.Sentiment < d2.Sentiment'
+
+  con.query(sql, function (error, results, fields) {
+    if (error) throw error;
+      return res.send(results );
+  });
+});
+
+// Retrieve stocks with decreasing price and increasing sentiment in the past business day
+app.get('/priceDownSentimentUp', function (req, res) {
+  var sql =
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+   FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
+     AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
+     AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
+   ON d1.Symbol = s1.Symbol \
+   WHERE d1.Close < d2.Close AND d1.Sentiment > d2.Sentiment'
+
+  con.query(sql, function (error, results, fields) {
+    if (error) throw error;
+      return res.send(results );
+  });
+});
+
 
 
 module.exports = app;
