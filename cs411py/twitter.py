@@ -3,7 +3,9 @@ import re
 import tweepy as tw
 import pandas as pd
 from textblob import TextBlob
-
+from datetime import datetime
+import mongo
+from mongo import getkeyword
 import pprint
 
 consumer_key = '2zhYzsZAVSa2cVLVcemfmz9nn'
@@ -39,24 +41,25 @@ def get_tweet_sentiment(tweet):
 
 
 # Define the search term and the date_since date as variables
-search_words = "#airpods"
-date_since = "2019-10-25"
-date_until = "2019-10-29"
-
+search_words = getkeyword("AAPL",0)
+date_since = '2019-12-4'
+date_until = "2019-12-5"
 # Collect tweets
 tweets = tw.Cursor(api.search,
-                   q=search_words,
+                   q=search_words + "-filter:retweets",
                    lang="en",
                    since=date_since,
                    until=date_until,
                    tweet_mode='extended').items(1000)
+datetime_object = datetime.strptime('Dec 3 2019 11:59PM', '%b %d %Y %I:%M%p')
 
 for tweet in tweets:
     #pp.pprint(tweet.entities.urls.url)
     get_tweet_sentiment(tweet)
-    print("///////////////////////////")
-    print(tweet.full_text)
-    print(tweet.created_at)
+    if ( tweet.created_at > datetime_object):
+        print("///////////////////////////")
+        print(tweet.full_text)
+        print(tweet.created_at)
     #print(tweet)
     #pp.pprint(tweet.urls.url)
 
@@ -94,9 +97,9 @@ def findMax(result):
         if sentiment > secondSentiment and sentiment < topSentiment:
             secondSentiment = sentiment
             secondId = postID
-    print("Highest Sentiment = " + str(topSentiment) + " at postid " + topId)
+    print("Highest Sentiment = " + str(topSentiment) + " at postid " + str(topId))
     print("2nd highest Sentiment = " +
-          str(secondSentiment) + " at postid " + secondId)
+          str(secondSentiment) + " at postid " + str(secondId))
 
 
 print(len(result))
