@@ -274,7 +274,7 @@ app.delete('/deletehourly', function (req, res) {
 // Retrieve stocks with increasing price and sentiment in the past business day
 app.get('/bullish', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -290,7 +290,7 @@ app.get('/bullish', function (req, res) {
 // Retrieve stocks with decreasing price and sentiment in the past business day
 app.get('/bearish', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -306,7 +306,7 @@ app.get('/bearish', function (req, res) {
 // Retrieve stocks with increasing price and decreasing sentiment in the past business day
 app.get('/priceUpSentimentDown', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -322,7 +322,7 @@ app.get('/priceUpSentimentDown', function (req, res) {
 // Retrieve stocks with decreasing price and increasing sentiment in the past business day
 app.get('/priceDownSentimentUp', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
