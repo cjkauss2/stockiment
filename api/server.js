@@ -26,8 +26,8 @@ app.use(bodyParser.urlencoded({
 app.use('/user', userRouter);
 app.use('/tweet', TweetRouter);
 // set port
-app.listen(3002, function () {
-  console.log('Node app is running on port 3002');
+app.listen(3000, function () {
+  console.log('Node app is running on port 3000');
 });
 // default route
 app.get('/', function (req, res) {
@@ -66,7 +66,7 @@ cron.schedule("*/1 9-15 * * 1-5", function() {
     }
 
     request({
-      url: 'http://localhost:3002/inserthourly?symbol=' + results[currentHourly].Symbol,
+      url: 'http://localhost:3000/inserthourly?symbol=' + results[currentHourly].Symbol,
       method: "POST",
       json: true,
     });
@@ -87,7 +87,7 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
     }
 
     request({
-      url: 'http://localhost:3002/insertdaily?symbol=' + results[currentDaily].Symbol,
+      url: 'http://localhost:3000/insertdaily?symbol=' + results[currentDaily].Symbol,
       method: "POST",
       json: true,
     });
@@ -100,15 +100,37 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
 // Schedule text messages to be sent out daily at 11:00 US/Eastern
 // 0 10 * * 1-5
 cron.schedule("0 10 * * 1-5", function() {
-  var url = 'http://localhost:3002/bullish';
+  var url = 'http://localhost:3000/bullish';
   console.log("entered schedule");
   request(url, function (error, response, body) {
     if (error) throw error;
     var stocks = JSON.parse(body)
     // console.log(stocks);
     for (var stock of stocks) {
-      console.log(stock);
-      var msg ='Stock '+ stock.Symbol + "Price and Sentiment are incresing!";
+      console.log(stock.Symbol + 'bullish');
+      var msg = stock.Symbol + "Price and sentiment are incresing!";
+      var topic = 'arn:aws:sns:us-west-2:766206360703:' + stock.Symbol;
+      // /* pulish message to a topic (send SMS messages to multiple phone numbers) */
+      var pubParams = {
+          Message: msg,
+          TopicArn: topic
+      };
+      sns.publish(pubParams, function(err, data) {
+          if (err) console.log(err, err.stack); // an error occurred
+          else     console.log("publish sucess");           // successful response
+      });
+    }
+
+  })
+
+  url = 'http://localhost:3000/bearish';
+  request(url, function (error, response, body) {
+    if (error) throw error;
+    var stocks = JSON.parse(body)
+    // console.log(stocks);
+    for (var stock of stocks) {
+      console.log(stock.Symbol + 'bearish');
+      var msg = stock.Symbol + "Price and sentiment are decreasing!";
       var topic = 'arn:aws:sns:us-west-2:766206360703:' + stock.Symbol;
       // /* pulish message to a topic (send SMS messages to multiple phone numbers) */
       var pubParams = {
@@ -129,7 +151,7 @@ cron.schedule("0 10 * * 1-5", function() {
 // Delete old hourly prices everyday at 18:00 US/Eastern
 cron.schedule("0 17 * * 1-5", function() {
   request({
-    url: 'http://localhost:3002/deletehourly',
+    url: 'http://localhost:3000/deletehourly',
     method: "DELETE",
     json: true,
   });
