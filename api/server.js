@@ -1,31 +1,31 @@
-const express = require(‘express’);
+const express = require('express');
 const app = express();
-const bodyParser = require(‘body-parser’);
-const cors = require(‘cors’);
-const request = require(‘request’);
-// const mysql = require(‘mysql’);
-const cron = require(‘node-cron’);
-const mongoose = require(‘mongoose’);
-const userRouter = require(‘./user_route’);
-const TweetRouter = require(‘./tweet_route’);
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const request = require('request');
+// const mysql = require('mysql');
+const cron = require('node-cron');
+const mongoose = require('mongoose');
+const userRouter = require('./user_route');
+const TweetRouter = require('./tweet_route');
 const db = mongoose.connect(“mongodb://localhost:27017/test”);
-var AWS = require(‘aws-sdk’);
+var AWS = require('aws-sdk');
 // TODO: Set credentials for AWS for publishing mesg
-var sns = new AWS.SNS({apiVersion: ‘2010-03-31’});
+var sns = new AWS.SNS({apiVersion: '2010-03-31'});
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
    extended: true
 }));
-app.use(‘/user’, userRouter);
-app.use(‘/tweet’, TweetRouter);
+app.use('/user', userRouter);
+app.use('/tweet', TweetRouter);
 // set port
 app.listen(3000, function () {
-  console.log(‘Node app is running on port 3000’);
+  console.log('Node app is running on port 3000');
 });
 // default route
-app.get(‘/’, function (req, res) {
-   return res.send(‘Team Higher Us API.’);
+app.get('/', function (req, res) {
+   return res.send('Team Higher Us API.');
 });
 
 // set port
