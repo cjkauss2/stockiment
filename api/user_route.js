@@ -22,14 +22,20 @@ userRouter.route('')
 userRouter.route('/:userId')
   .get((req, res) => {
     User.findById(req.params.userId, (err, item) => {
-        res.json(item.favorite)
+      if (err) throw err;
+      if (item) {
+        res.json(item.favorite);
+      }
     })
   })
   .put((req,res) => {
     User.findById(req.params.userId, (err, item) => {
+      if (err) throw err;
+      if (req.body.stock && item) {
         item.favorite.push(req.body.stock);
         item.save();
         res.json(item)
+      }
     })
   })
 
