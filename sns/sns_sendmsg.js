@@ -2,8 +2,6 @@
 var AWS = require('aws-sdk');
 // Set credentials (only need to do it once)
 AWS.config.update({
-    accessKeyId: 'keyid',
-    secretAccessKey: 'accesskey',
     region: 'us-west-2'
 });
 
@@ -32,4 +30,4 @@ var phoneNum = '12171112222'; /* phone number Use E.164 format. without '+' */
 sns.publish({Message: msg, PhoneNumber: phoneNum}, function(err, data) {
     if (err) console.log(err, err.stack); // an error occurred
     else     console.log(data);           // successful response
-});  
+});

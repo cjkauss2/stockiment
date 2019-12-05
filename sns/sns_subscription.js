@@ -2,8 +2,6 @@
 var AWS = require('aws-sdk');
 // Set credentials (only need to do it once)
 AWS.config.update({
-    accessKeyId: 'keyid',
-    secretAccessKey: 'accesskey',
     region: 'us-west-2'
 });
 
@@ -38,8 +36,8 @@ sns.listTopics({}, function(err, data) {
 
 
 
-/* subscribe to the topic. 
-subscribe a user to a topic (when user adds a stock to their favorite list), 
+/* subscribe to the topic.
+subscribe a user to a topic (when user adds a stock to their favorite list),
 so that the user can receive message */
 var phonenum = '12223331111';
 var params = {

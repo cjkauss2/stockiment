@@ -12,8 +12,6 @@ const db = mongoose.connect('mongodb://localhost:27017/test');
 var AWS = require('aws-sdk');
 // Set credentials (only need to do it once)
 AWS.config.update({
-  accessKeyId: 'AKIA3EZLVHR74OXH6S62',
-  secretAccessKey: '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',
   region: 'us-west-2'
 });
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});

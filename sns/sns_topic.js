@@ -4,8 +4,6 @@ var AWS = require('aws-sdk');
 
 // Set credentials (only need to do it once)
 AWS.config.update({
-    accessKeyId: 'keyid',
-    secretAccessKey: 'accesskey',
     region: 'us-west-2'
 });
 
@@ -23,7 +21,7 @@ AWS.config.getCredentials(function(err) {
 
 
 /* create a topic */
-// parameter for 
+// parameter for
 var params = {
     Name: 'GOOGL_price_is_low', /* required */
 };
