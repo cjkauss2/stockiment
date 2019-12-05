@@ -10,8 +10,14 @@ const userRouter = require('./user_route');
 const TweetRouter = require('./tweet_route');
 const db = mongoose.connect('mongodb://localhost:27017/test');
 var AWS = require('aws-sdk');
-// TODO: Set credentials for AWS for publishing mesg
+// Set credentials (only need to do it once)
+AWS.config.update({
+  accessKeyId: 'AKIA3EZLVHR74OXH6S62',
+  secretAccessKey: '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',
+  region: 'us-west-2'
+});
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -20,8 +26,8 @@ app.use(bodyParser.urlencoded({
 app.use('/user', userRouter);
 app.use('/tweet', TweetRouter);
 // set port
-app.listen(3000, function () {
-  console.log('Node app is running on port 3000');
+app.listen(3002, function () {
+  console.log('Node app is running on port 3002');
 });
 // default route
 app.get('/', function (req, res) {
@@ -60,7 +66,7 @@ cron.schedule("*/1 9-15 * * 1-5", function() {
     }
 
     request({
-      url: 'http://localhost:3000/inserthourly?symbol=' + results[currentHourly].Symbol,
+      url: 'http://localhost:3002/inserthourly?symbol=' + results[currentHourly].Symbol,
       method: "POST",
       json: true,
     });
@@ -81,7 +87,7 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
     }
 
     request({
-      url: 'http://localhost:3000/insertdaily?symbol=' + results[currentDaily].Symbol,
+      url: 'http://localhost:3002/insertdaily?symbol=' + results[currentDaily].Symbol,
       method: "POST",
       json: true,
     });
@@ -94,16 +100,27 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
 // Schedule text messages to be sent out daily at 11:00 US/Eastern
 // 0 10 * * 1-5
 cron.schedule("0 10 * * 1-5", function() {
-  var url = 'localhost:3000/bullish';
-
+  var url = 'http://localhost:3002/bullish';
+  console.log("entered schedule");
   request(url, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var stocks = JSON.parse(body)
-
-      for (var stock in stocks) {
-        console.log(stock.Symbol);
-      }
+    if (error) throw error;
+    var stocks = JSON.parse(body)
+    // console.log(stocks);
+    for (var stock of stocks) {
+      console.log(stock);
+      var msg ='Stock '+ stock.Symbol + "Price and Sentiment are incresing!";
+      var topic = 'arn:aws:sns:us-west-2:766206360703:' + stock.Symbol;
+      // /* pulish message to a topic (send SMS messages to multiple phone numbers) */
+      var pubParams = {
+          Message: msg,
+          TopicArn: topic
+      };
+      sns.publish(pubParams, function(err, data) {
+          if (err) console.log(err, err.stack); // an error occurred
+          else     console.log("publish sucess");           // successful response
+      });
     }
+
   })
 });
 
@@ -112,7 +129,7 @@ cron.schedule("0 10 * * 1-5", function() {
 // Delete old hourly prices everyday at 18:00 US/Eastern
 cron.schedule("0 17 * * 1-5", function() {
   request({
-    url: 'http://localhost:3000/deletehourly',
+    url: 'http://localhost:3002/deletehourly',
     method: "DELETE",
     json: true,
   });
@@ -274,7 +291,7 @@ app.delete('/deletehourly', function (req, res) {
 // Retrieve stocks with increasing price and sentiment in the past business day
 app.get('/bullish', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -290,7 +307,7 @@ app.get('/bullish', function (req, res) {
 // Retrieve stocks with decreasing price and sentiment in the past business day
 app.get('/bearish', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -306,7 +323,7 @@ app.get('/bearish', function (req, res) {
 // Retrieve stocks with increasing price and decreasing sentiment in the past business day
 app.get('/priceUpSentimentDown', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
@@ -322,7 +339,7 @@ app.get('/priceUpSentimentDown', function (req, res) {
 // Retrieve stocks with decreasing price and increasing sentiment in the past business day
 app.get('/priceDownSentimentUp', function (req, res) {
   var sql =
-  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d2.Close - d1.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d2.Sentiment - d1.Sentiment) / d2.Sentiment as PctChangeSentiment\
+  'SELECT s1.StockName as StockName, d1.Symbol as Symbol, d1.Close as Close, 100 * (d1.Close - d2.Close) / d2.Close as PctChangePrice, d1.Sentiment as Sentiment, 100 * (d1.Sentiment - d2.Sentiment) / d2.Sentiment as PctChangeSentiment\
    FROM Stock s1 INNER JOIN (DailyPrice d1 INNER JOIN DailyPrice d2 ON d1.Symbol = d2.Symbol \
      AND d1.Date = (SELECT MAX(d3.Date) FROM DailyPrice d3) \
      AND d2.Date = (SELECT MAX(d4.Date) FROM DailyPrice d4 WHERE d4.Date < (SELECT MAX(d5.Date) FROM DailyPrice d5))) \
