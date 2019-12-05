@@ -94,8 +94,17 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
 // Schedule text messages to be sent out daily at 11:00 US/Eastern
 // 0 10 * * 1-5
 cron.schedule("0 10 * * 1-5", function() {
-  console.log('Sending texts');
+  var url = 'localhost:3000/bullish';
 
+  request(url, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var stocks = JSON.parse(body)
+
+      for (var stock in stocks) {
+        console.log(stock.Symbol);
+      }
+    }
+  })
 });
 
 
