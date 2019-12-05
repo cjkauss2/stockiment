@@ -27,7 +27,10 @@ userRouter.route('')
 userRouter.route('/:userId')
   .get((req, res) => {
     User.findById(req.params.userId, (err, item) => {
+      if (err) throw err;
+      if (item) {
         res.json(item.favorite)
+      }
     })
   })
   .put((req,res) => {
