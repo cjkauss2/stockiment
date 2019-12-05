@@ -129,8 +129,6 @@ app.get('/daily', function (req, res) {
     d.setMonth(d.getMonth() - 1);
   }
 
-  console.log(d);
-
   var sql = 'SELECT * FROM DailyPrice WHERE Symbol = ? AND Date >= ?';
   con.query(sql, [symbol, d], function (error, results, fields) {
     if (error) throw error;
