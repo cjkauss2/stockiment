@@ -10,8 +10,14 @@ const userRouter = require('./user_route');
 const TweetRouter = require('./tweet_route');
 const db = mongoose.connect('mongodb://localhost:27017/test');
 var AWS = require('aws-sdk');
-// TODO: Set credentials for AWS for publishing mesg
+// Set credentials (only need to do it once)
+AWS.config.update({
+  accessKeyId: 'AKIA3EZLVHR74OXH6S62',
+  secretAccessKey: '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',
+  region: 'us-west-2'
+});
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -94,16 +100,27 @@ cron.schedule("*/15 0-10 16 * * 1-5", function() {
 // Schedule text messages to be sent out daily at 11:00 US/Eastern
 // 0 10 * * 1-5
 cron.schedule("0 10 * * 1-5", function() {
-  var url = 'localhost:3000/bullish';
-
+  var url = 'http://localhost:3002/bullish';
+  console.log("entered schedule");
   request(url, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var stocks = JSON.parse(body)
-
-      for (var stock in stocks) {
-        console.log(stock.Symbol);
-      }
+    if (error) throw error;
+    var stocks = JSON.parse(body)
+    // console.log(stocks);
+    for (var stock of stocks) {
+      console.log(stock);
+      var msg ='Stock '+ stock.Symbol + "Price and Sentiment are incresing!";
+      var topic = 'arn:aws:sns:us-west-2:766206360703:' + stock.Symbol;
+      // /* pulish message to a topic (send SMS messages to multiple phone numbers) */
+      var pubParams = {
+          Message: msg,
+          TopicArn: topic
+      };
+      sns.publish(pubParams, function(err, data) {
+          if (err) console.log(err, err.stack); // an error occurred
+          else     console.log("publish sucess");           // successful response
+      });
     }
+
   })
 });
 

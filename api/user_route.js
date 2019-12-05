@@ -1,6 +1,8 @@
 const express = require('express');
 const User = require('./user_model');
 const userRouter = express.Router();
+var AWS = require('aws-sdk');
+var sns = new AWS.SNS({apiVersion: '2010-03-31'});
 
 // get all users' json
 // post : add a new user to user table
@@ -30,14 +32,26 @@ userRouter.route('/:userId')
   })
   .put((req,res) => {
     User.findById(req.params.userId, (err, item) => {
-      if (err) throw err;
-      if (req.body.stock && item) {
         item.favorite.push(req.body.stock);
         item.save();
         res.json(item)
-      }
+        var phonenum = item.phone.toString()
+        var stock = req.body.stock
+        var params = {
+          Protocol: 'sms', /* required */
+          TopicArn: 'arn:aws:sns:us-west-2:766206360703:' + stock, /* required */
+          Endpoint: phonenum,
+          ReturnSubscriptionArn: true || false
+        };
+        sns.subscribe(params, function(err, data) {
+          if (err) console.log(err, err.stack); // an error occurred
+          else     console.log(data);           // successful response
+        });
+        console.log("pass");
     })
+
   })
+
 
 // remove a specified ticker from this user's fav list
 // params: userId-> user name, deleteTicker-> ticker
