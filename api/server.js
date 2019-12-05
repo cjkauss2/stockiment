@@ -1,20 +1,31 @@
-const express = require('express');
+const express = require(‘express’);
 const app = express();
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const request = require('request');
-const mysql = require('mysql');
-const cron = require('node-cron');
-
+const bodyParser = require(‘body-parser’);
+const cors = require(‘cors’);
+const request = require(‘request’);
+// const mysql = require(‘mysql’);
+const cron = require(‘node-cron’);
+const mongoose = require(‘mongoose’);
+const userRouter = require(‘./user_route’);
+const TweetRouter = require(‘./tweet_route’);
+const db = mongoose.connect(“mongodb://localhost:27017/test”);
+var AWS = require(‘aws-sdk’);
+// TODO: Set credentials for AWS for publishing mesg
+var sns = new AWS.SNS({apiVersion: ‘2010-03-31’});
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
    extended: true
 }));
-
+app.use(‘/user’, userRouter);
+app.use(‘/tweet’, TweetRouter);
+// set port
+app.listen(3000, function () {
+  console.log(‘Node app is running on port 3000’);
+});
 // default route
-app.get('/', function (req, res) {
-   return res.send('Team Higher Us API')
+app.get(‘/’, function (req, res) {
+   return res.send(‘Team Higher Us API.’);
 });
 
 // set port
@@ -44,7 +55,7 @@ var currentHourly = 0;
 // Schedule insert hourly price tasks to be run on the server
 // We only have 500 api calls a day, so we have to limit how often we insert data
 // Update hourly prices every minute from 10:00 to 16:00 US/Eastern
-cron.schedule("*/1 9-15 * * *", function() {
+cron.schedule("*/1 9-15 * * 1-5", function() {
   con.query('SELECT * FROM Stock', function (error, results, fields) {
     if (error) {
       console.log(error);
@@ -65,7 +76,7 @@ cron.schedule("*/1 9-15 * * *", function() {
 var currentDaily = 0;
 // Schedule insert daily price tasks to be run on the server
 // Update daily price every 15 seconds from 17:00 to 17:10 US/Eastern (Up to 40 stocks)
-cron.schedule("*/15 0-10 16 * * *", function() {
+cron.schedule("*/15 0-10 16 * * 1-5", function() {
   con.query('SELECT * FROM Stock', function (error, results, fields) {
     if (error) {
       console.log(error);
@@ -85,8 +96,8 @@ cron.schedule("*/15 0-10 16 * * *", function() {
 
 
 // Schedule text messages to be sent out daily at 11:00 US/Eastern
-// 0 10 * * *
-cron.schedule("0 10 * * *", function() {
+// 0 10 * * 1-5
+cron.schedule("0 10 * * 1-5", function() {
   console.log('Sending texts');
 
 });
@@ -94,7 +105,7 @@ cron.schedule("0 10 * * *", function() {
 
 // Schedule delete hourly price task to be run on the server
 // Delete old hourly prices everyday at 18:00 US/Eastern
-cron.schedule("0 17 * * *", function() {
+cron.schedule("0 17 * * 1-5", function() {
   request({
     url: 'http://localhost:3000/deletehourly',
     method: "DELETE",
