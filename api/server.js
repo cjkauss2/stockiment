@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const request = require('request');
-// const mysql = require('mysql');
+const mysql = require('mysql');
 const cron = require('node-cron');
 const mongoose = require('mongoose');
 const userRouter = require('./user_route');
@@ -28,16 +28,12 @@ app.get('/', function (req, res) {
    return res.send('Team Higher Us API.');
 });
 
-// set port
-app.listen(3000, function () {
-   console.log('Node app is running on port 3000');
-});
 
 //connection configurations
 var con = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'password',
+  password: 'teamHigherUs12#$',
   database: 'Stocks',
   port: '3306'
 });
