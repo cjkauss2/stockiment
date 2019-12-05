@@ -3,9 +3,9 @@ import re
 import tweepy as tw
 import pandas as pd
 from textblob import TextBlob
-from datetime import datetime
+from datetime import datetime,date, time, timedelta
 import mongo
-from mongo import getkeyword
+from mongo import insert_mongo, remove_mongo
 import pprint
 
 consumer_key = '2zhYzsZAVSa2cVLVcemfmz9nn'
@@ -39,51 +39,7 @@ def get_tweet_sentiment(tweet):
 
         result[tweet.id_str] = analysis.sentiment.polarity
 
-
-# Define the search term and the date_since date as variables
-search_words = getkeyword("AAPL",0)
-date_since = '2019-12-4'
-date_until = "2019-12-5"
-# Collect tweets
-tweets = tw.Cursor(api.search,
-                   q=search_words + "-filter:retweets",
-                   lang="en",
-                   since=date_since,
-                   until=date_until,
-                   tweet_mode='extended').items(1000)
-datetime_object = datetime.strptime('Dec 3 2019 11:59PM', '%b %d %Y %I:%M%p')
-
-for tweet in tweets:
-    #pp.pprint(tweet.entities.urls.url)
-    get_tweet_sentiment(tweet)
-    if ( tweet.created_at > datetime_object):
-        print("///////////////////////////")
-        print(tweet.full_text)
-        print(tweet.created_at)
-    #print(tweet)
-    #pp.pprint(tweet.urls.url)
-
-
-
-
-#averageSentiment = sum(result)/ len(result)
-
-
-
-# Collect a list of tweets
-[tweet.full_text for tweet in tweets] 
-
-# set sentiment
-#if averageSentiment > 0:
-#    print('positive')
-#elif averageSentiment == 0:
-#    print('neutral')
-#else:
-#    print('negative')
-
-#print(averageSentiment)
-
-def findMax(result):
+def findMax(result,ticker):
     topSentiment = 0
     topId = 0
     for postID, sentiment in result.items():
@@ -97,11 +53,31 @@ def findMax(result):
         if sentiment > secondSentiment and sentiment < topSentiment:
             secondSentiment = sentiment
             secondId = postID
-    print("Highest Sentiment = " + str(topSentiment) + " at postid " + str(topId))
-    print("2nd highest Sentiment = " +
-          str(secondSentiment) + " at postid " + str(secondId))
+    remove_mongo(ticker)
+    insert_mongo({"score":  str(round(topSentiment,3)), "_id" : str(topId),"ticker":ticker})
+    insert_mongo({"score":  str(round(secondSentiment,3)), "_id" : str(secondId),"ticker":ticker})
 
-
-print(len(result))
-findMax(result)
-print(result)
+# Define the search term and the date_since date as variables
+search_words = {"AAPL","UBER","TWTR","FB","TSLA","AMZN","GOOGL"}
+for search_word in search_words:
+    result = {}
+    date_since = datetime.utcnow().strftime("%Y-%m-%d")
+    date_until = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
+    # Collect tweets
+    tweets = tw.Cursor(api.search,
+                       q=search_word + "-filter:retweets",
+                       lang="en",
+                       since=date_since,
+                       until=date_until,
+                       tweet_mode='extended').items(1000)
+    datetime_object = datetime.utcnow() - timedelta(hours=1)
+    count = 0
+    for tweet in tweets:
+        if ( tweet.created_at > datetime_object):
+            get_tweet_sentiment(tweet)
+            count += 1  
+            print("///////////////////////////")
+            print(tweet.full_text)
+            print(tweet.created_at)
+    print(len(result))
+    findMax(result,search_word)

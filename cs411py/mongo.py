@@ -1,12 +1,13 @@
 import pymongo
-def getkeyword(ticker):
+def insert_mongo(mydict):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["test"]
-    mycol = mydb["keywords"]
-    for x in mycol.find({"_id": ticker},{"_id":0}):
-        return(list(x.values())[0][1])
+    mycol = mydb["interestingTweets"]
+    mycol.insert_one(mydict)
 
-if __name__ == '__main__':
-    getkeyword("AAPL")
-
+def remove_mongo(ticker):
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["test"]
+    mycol = mydb["interestingTweets"]
+    mycol.remove({"_id":ticker})
 
