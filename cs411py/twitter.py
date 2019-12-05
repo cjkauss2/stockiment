@@ -43,23 +43,6 @@ def get_tweet_sentiment(tweet):
 
         result[tweet.id_str] = analysis.sentiment.polarity
 
-def findMax(result,ticker):
-    topSentiment = 0
-    topId = 0
-    for postID, sentiment in result.items():
-        if sentiment > topSentiment:
-            topSentiment = sentiment
-            topId = postID
-
-    secondSentiment = 0
-    secondId = 0
-    for postID, sentiment in result.items():
-        if sentiment > secondSentiment and sentiment < topSentiment:
-            secondSentiment = sentiment
-            secondId = postID
-    remove_mongo(ticker)
-    insert_mongo({"score":  str(round(topSentiment,3)), "twitterid" : str(topId),"ticker":ticker})
-    insert_mongo({"score":  str(round(secondSentiment,3)), "twitterid" : str(secondId),"ticker":ticker})
 
 # Define the search term and the date_since date as variables
 def job():
@@ -80,13 +63,27 @@ def job():
         datetime_object = datetime.utcnow() - timedelta(hours=1)
         count = 0
         total = 0
+        topRetweet = 0
+        topId = 0
+        secondRetweet = 0
+        secondId = 0
+        print("running")
         for tweet in tweets:
             if ( tweet.created_at > datetime_object):
                 get_tweet_sentiment(tweet)
                 count += 1  
                 total += result[tweet.id_str]
-        findMax(result,search_word)
+            if tweet.retweet_count > topRetweet:
+                    topRetweet = tweet.retweet_count
+                    topId = tweet.id_str
+            if tweet.retweet_count > secondRetweet and  tweet.retweet_count< topRetweet:
+                    secondRetweet = tweet.retweet_count
+                    secondId = tweet.id_str
+        remove_mongo(search_word)
+        insert_mongo({ "twitterid" : str(topId),"ticker":search_word})
+        insert_mongo({ "twitterid" : str(secondId),"ticker":search_word})
         avg = total/count
+        print(count)
         print(avg)
         update_sentiment(search_word, avg)
 
