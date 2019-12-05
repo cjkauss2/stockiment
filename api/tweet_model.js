@@ -12,6 +12,6 @@ var tweetSchema = mongoose.Schema({
         type: String,
         required: true
     }
-});
+}, { collection: 'interestingTweets' });
 
 var tweetSchema = module.exports = mongoose.model('interestingTweets', tweetSchema);
