@@ -8,7 +8,7 @@ const cron = require('node-cron');
 const mongoose = require('mongoose');
 const userRouter = require('./user_route');
 const TweetRouter = require('./tweet_route');
-const db = mongoose.connect(“mongodb://localhost:27017/test”);
+const db = mongoose.connect('mongodb://localhost:27017/test');
 var AWS = require('aws-sdk');
 // TODO: Set credentials for AWS for publishing mesg
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});
