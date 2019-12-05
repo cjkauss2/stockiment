@@ -2,8 +2,13 @@ const express = require('express');
 const User = require('./user_model');
 const userRouter = express.Router();
 var AWS = require('aws-sdk');
+// Set credentials (only need to do it once)
+AWS.config.update({
+  accessKeyId: 'AKIA3EZLVHR74OXH6S62',
+  secretAccessKey: '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',
+  region: 'us-west-2'
+});
 var sns = new AWS.SNS({apiVersion: '2010-03-31'});
-
 // get all users' json
 // post : add a new user to user table
 userRouter.route('')
@@ -24,10 +29,7 @@ userRouter.route('')
 userRouter.route('/:userId')
   .get((req, res) => {
     User.findById(req.params.userId, (err, item) => {
-      if (err) throw err;
-      if (item) {
-        res.json(item.favorite);
-      }
+        res.json(item.favorite)
     })
   })
   .put((req,res) => {
@@ -52,9 +54,6 @@ userRouter.route('/:userId')
 
   })
 
-
-// remove a specified ticker from this user's fav list
-// params: userId-> user name, deleteTicker-> ticker
 userRouter.route('/:userId/:deleteTicker')
   .delete((req,res) => {
     User.findById(req.params.userId, (err, item) => {
