@@ -6,6 +6,8 @@ from textblob import TextBlob
 from datetime import datetime,date, time, timedelta
 import mongo
 from mongo import insert_mongo, remove_mongo
+import sql
+from sql import update_sentiment
 import pprint
 
 consumer_key = '2zhYzsZAVSa2cVLVcemfmz9nn'
@@ -54,8 +56,8 @@ def findMax(result,ticker):
             secondSentiment = sentiment
             secondId = postID
     remove_mongo(ticker)
-    insert_mongo({"score":  str(round(topSentiment,3)), "_id" : str(topId),"ticker":ticker})
-    insert_mongo({"score":  str(round(secondSentiment,3)), "_id" : str(secondId),"ticker":ticker})
+    insert_mongo({"score":  str(round(topSentiment,3)), "twitterid" : str(topId),"ticker":ticker})
+    insert_mongo({"score":  str(round(secondSentiment,3)), "twitterid" : str(secondId),"ticker":ticker})
 
 # Define the search term and the date_since date as variables
 search_words = {"AAPL","UBER","TWTR","FB","TSLA","AMZN","GOOGL"}
@@ -72,12 +74,16 @@ for search_word in search_words:
                        tweet_mode='extended').items(1000)
     datetime_object = datetime.utcnow() - timedelta(hours=1)
     count = 0
+    total = 0
     for tweet in tweets:
         if ( tweet.created_at > datetime_object):
             get_tweet_sentiment(tweet)
             count += 1  
+            total += result[tweet.id_str]
             print("///////////////////////////")
             print(tweet.full_text)
             print(tweet.created_at)
     print(len(result))
     findMax(result,search_word)
+    avg = total/count
+    update_sentiment(search_word, avg)

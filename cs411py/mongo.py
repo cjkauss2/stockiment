@@ -9,5 +9,5 @@ def remove_mongo(ticker):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["test"]
     mycol = mydb["interestingTweets"]
-    mycol.remove({"_id":ticker})
+    mycol.remove({"ticker":ticker})
 
