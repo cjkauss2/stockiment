@@ -9,6 +9,8 @@ from mongo import insert_mongo, remove_mongo
 import sql
 from sql import update_sentiment
 import pprint
+import schedule
+import time
 
 consumer_key = '2zhYzsZAVSa2cVLVcemfmz9nn'
 consumer_secret = '78cuz18QeMkd6Z31rmnOkqWsASvyAJBg42wB0jqycs4KvWdjI6'
@@ -60,30 +62,36 @@ def findMax(result,ticker):
     insert_mongo({"score":  str(round(secondSentiment,3)), "twitterid" : str(secondId),"ticker":ticker})
 
 # Define the search term and the date_since date as variables
-search_words = {"AAPL","UBER","TWTR","FB","TSLA","AMZN","GOOGL"}
-for search_word in search_words:
-    result = {}
-    date_since = datetime.utcnow().strftime("%Y-%m-%d")
-    date_until = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
-    # Collect tweets
-    tweets = tw.Cursor(api.search,
+def job():
+    search_words = {"AAPL","UBER","TWTR","FB","TSLA","AMZN","GOOGL"}
+    for search_word in search_words:
+        print(search_word)
+        global result
+        result = {}
+        date_since = datetime.utcnow().strftime("%Y-%m-%d")
+        date_until = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
+        # Collect tweets
+        tweets = tw.Cursor(api.search,
                        q=search_word + "-filter:retweets",
                        lang="en",
                        since=date_since,
                        until=date_until,
                        tweet_mode='extended').items(1000)
-    datetime_object = datetime.utcnow() - timedelta(hours=1)
-    count = 0
-    total = 0
-    for tweet in tweets:
-        if ( tweet.created_at > datetime_object):
-            get_tweet_sentiment(tweet)
-            count += 1  
-            total += result[tweet.id_str]
-            print("///////////////////////////")
-            print(tweet.full_text)
-            print(tweet.created_at)
-    print(len(result))
-    findMax(result,search_word)
-    avg = total/count
-    update_sentiment(search_word, avg)
+        datetime_object = datetime.utcnow() - timedelta(hours=1)
+        count = 0
+        total = 0
+        for tweet in tweets:
+            if ( tweet.created_at > datetime_object):
+                get_tweet_sentiment(tweet)
+                count += 1  
+                total += result[tweet.id_str]
+        findMax(result,search_word)
+        avg = total/count
+        print(avg)
+        update_sentiment(search_word, avg)
+
+
+while 1:
+    job()
+    time.sleep(3600)
+    
