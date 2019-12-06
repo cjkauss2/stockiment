@@ -1,87 +1,40 @@
 # Stockiment
 
-One Paragraph of project description goes here
+In the modern age of investing, the availability of data on investor sentiment allows us to extrapolate future buying and selling decisions based on mass media. In this project, we will attempt to use sentiment analysis to predict stock market valuation in the short term.
+  1. We are performing NLP analysis on Tweets relevant to the stock/company.
+  2. Using these quantitative results from the NLP analysis we will attempt to predict the value of the stock in the near     future.
+  3. Inform users of the stocks that we predict will go up or down.
+  4. Provide users with trending tweets about each company to provide further insight and relevant news.
 
 ## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
 What things you need to install the software and how to install them
 
-```
-Give examples
-```
+#### Install Node.js and npm
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+In order to test the code which uses Amazon SNS service in sns folder. Install aws
 
 ```
-Give the example
+npm install aws-sdk
 ```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+In the directory which you cloned this project in, run 
 
 ```
-Give an example
+node api/server.js
 ```
+Once the server is running, go check the frontend repository and start the frontend to see the webpage.
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* **Collin Kauss ** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Jinyuan Li **
+* **William Sheung **
+* **Zhaojie Tang **
