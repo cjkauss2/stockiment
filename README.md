@@ -19,6 +19,15 @@ In order to test the code which uses Amazon SNS service in sns folder. Install a
 ```
 npm install aws-sdk
 ```
+You need a aws account and access for Amazon SNS service. Check out the link below and follow the instructions to obtain your SNS credentials.
+[Setting Up Access for Amazon SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-setting-up.html)
+
+Once you obtain your credentials, update it to the config by running this in terminal:
+```
+export AWS_ACCESS_KEY_ID=yourkey
+export AWS_SECRET_ACCESS_KEY=your_secret_key
+export AWS_DEFAULT_REGION=your_aws_region
+```
 
 ## Running the server
 
