@@ -27,7 +27,7 @@ In the directory which you cloned this project in, run
 ```
 node api/server.js
 ```
-Once the server is running, go check the frontend repository and start the frontend to see the webpage.
+Once the server is running, go check out the frontend git repo and start the frontend to see the webpage.
 
 [Video link](https://youtu.be/hm0xJztueTY)
 
