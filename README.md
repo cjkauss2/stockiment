@@ -32,7 +32,7 @@ Once the server is running, go check the frontend repository and start the front
 
 ## Authors
 
-* **Collin Kauss ** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-* **Jinyuan Li **
-* **William Sheung **
-* **Zhaojie Tang **
+* ** Collin Kauss **
+* ** Jinyuan Li **
+* ** William Sheung **
+* ** Zhaojie Tang **
