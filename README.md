@@ -20,7 +20,7 @@ In order to test the code which uses Amazon SNS service in sns folder. Install a
 npm install aws-sdk
 ```
 
-## Running the tests
+## Running the server
 
 In the directory which you cloned this project in, run 
 
@@ -29,10 +29,11 @@ node api/server.js
 ```
 Once the server is running, go check the frontend repository and start the frontend to see the webpage.
 
+[Video link](https://youtu.be/hm0xJztueTY)
 
 ## Authors
 
-* ** Collin Kauss **
-* ** Jinyuan Li **
-* ** William Sheung **
-* ** Zhaojie Tang **
+* Collin Kauss 
+* Jinyuan Li
+* William Sheung 
+* Zhaojie Tang 
