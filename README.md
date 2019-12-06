@@ -10,9 +10,7 @@ In the modern age of investing, the availability of data on investor sentiment a
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-#### Install Node.js and npm
+Install Node.js and npm
 
 ### Installing
 
