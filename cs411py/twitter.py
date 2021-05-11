@@ -12,11 +12,11 @@ import pprint
 import schedule
 import time
 
-consumer_key = '2zhYzsZAVSa2cVLVcemfmz9nn'
-consumer_secret = '78cuz18QeMkd6Z31rmnOkqWsASvyAJBg42wB0jqycs4KvWdjI6'
-
-access_token = '3985700398-zubYyKBHfyl9qwYlkAWmuMDL2qMFoMKOUE3La2Q'
-access_token_secret = 'W2uAbind64acBB9OI5X7DDHEGmPdsFD9akoJmP4mGjkdh'
+# Fill in corresponding credentials
+consumer_key = None
+consumer_secret = None
+access_token = None
+access_token_secret = None
 
 
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
